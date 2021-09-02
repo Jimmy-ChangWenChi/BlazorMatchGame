@@ -1,4 +1,6 @@
-﻿@page "/"
+﻿@inject IJSRuntime JsRuntime
+
+@page "/"
 
 <style>
     .container {
@@ -25,7 +27,7 @@ Welcome to your new app.
         {
             var animal = shuffledAnimal[animalNumber];
             var uniqueDescription = $"Button #{animalNumber}";
-            
+
             <div class="rol-3">
                 <button type="button" class="btn btn-outline-dark"
                         @onclick="@(() => ButtonClick(animal, uniqueDescription) )">
@@ -33,6 +35,9 @@ Welcome to your new app.
                 </button>
             </div>
         }
+    </div>
+    <div class="row">
+        <h2>Match found: @matchedFound</h2>
     </div>
 </div>
 
@@ -51,6 +56,7 @@ Welcome to your new app.
     };
 
     List<string> shuffledAnimal = new List<string>();
+    int matchedFound = 0;
     protected override void OnInitialized()
     {
         //base.OnInitialized();
@@ -63,6 +69,7 @@ Welcome to your new app.
         shuffledAnimal = animalEmoji
             .OrderBy(item => random.Next())
             .ToList();
+        matchedFound = 0;
     }
 
     string lastAnimalFound = String.Empty;
@@ -82,6 +89,10 @@ Welcome to your new app.
             shuffledAnimal = shuffledAnimal
                 .Select(a => a.Replace(animal, string.Empty))
                 .ToList();
+            matchedFound++;
+            if(matchedFound == 8) { 
+                SetupGame();
+            }
         }
         else
         {
