@@ -1,6 +1,6 @@
-﻿@inject IJSRuntime JsRuntime
+﻿@page "/"
 
-@page "/"
+@using System.Timers 
 
 <style>
     .container {
@@ -39,6 +39,9 @@ Welcome to your new app.
     <div class="row">
         <h2>Match found: @matchedFound</h2>
     </div>
+    <div>
+        <h2>Time : @timeDisplay</h2>
+    </div>
 </div>
 
 
@@ -57,10 +60,17 @@ Welcome to your new app.
 
     List<string> shuffledAnimal = new List<string>();
     int matchedFound = 0;
+    Timer timer;
+    int tenthsofSecondsElapsed = 0;
+    string timeDisplay;
+
     protected override void OnInitialized()
     {
         //base.OnInitialized();
         SetupGame();
+        timer = new Timer(100);
+        timer.Elapsed += Timer_Tick;
+
     }
 
     protected void SetupGame()
@@ -70,6 +80,8 @@ Welcome to your new app.
             .OrderBy(item => random.Next())
             .ToList();
         matchedFound = 0;
+
+        tenthsofSecondsElapsed = 0;
     }
 
     string lastAnimalFound = String.Empty;
@@ -81,6 +93,8 @@ Welcome to your new app.
         {
             lastAnimalFound = animal;
             lastDescription = animalDescription;
+
+            timer.Start();
         }
         else if ((lastAnimalFound == animal) && lastDescription != animalDescription)
         {
@@ -90,13 +104,27 @@ Welcome to your new app.
                 .Select(a => a.Replace(animal, string.Empty))
                 .ToList();
             matchedFound++;
-            if(matchedFound == 8) { 
+
+            if(matchedFound == 8) {
+                timer.Stop();
+                timeDisplay += " - Play Again?";
                 SetupGame();
+
             }
         }
         else
         {
             lastAnimalFound = string.Empty;
         }
+    }
+
+    private void Timer_Tick(Object source, ElapsedEventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            tenthsofSecondsElapsed++; timeDisplay = (tenthsofSecondsElapsed / 10F)
+             .ToString("0.0s");
+            StateHasChanged();
+        });
     }
 }
